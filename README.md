@@ -76,3 +76,6 @@ https://simplevulnviewerapi.maremare.workers.dev/?keyword=Microsoft%20%E8%A3%BD%
 - **Adobe Acrobat**
 
 上記のキーワードに一致する情報がフィルタリングされます。
+
+## 関連リポジトリ
+* [SimpleVulnViewer](https://github.com/MareMare/SimpleVulnViewer)
