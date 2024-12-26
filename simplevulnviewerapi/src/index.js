@@ -30,61 +30,61 @@
  */
 
 export default {
-	async fetch(request, env, ctx) {
-		// 現在の日時を取得
-		const currentDateTime = new Date();
-		// UNIX時間を計算
-		const unixTime = Math.floor(currentDateTime.getTime() / 1000);
-		// URLにUNIX時間を含める
-		const sourceUrl = `http://isec-myjvn-feed1.ipa.go.jp/IPARssReader.php?${unixTime}&tool=icatw`;
+    async fetch(request, env, ctx) {
+        // 現在の日時を取得
+        const currentDateTime = new Date();
+        // UNIX時間を計算
+        const unixTime = Math.floor(currentDateTime.getTime() / 1000);
+        // URLにUNIX時間を含める
+        const sourceUrl = `http://isec-myjvn-feed1.ipa.go.jp/IPARssReader.php?${unixTime}&tool=icatw`;
 
-		try {
-			// リクエストのURL検索パラメータを取得
-			const url = new URL(request.url);
+        try {
+            // リクエストのURL検索パラメータを取得
+            const url = new URL(request.url);
 
-			// クエリパラメータ "keyword" のすべての値を取得（複数指定対応）
-			const keywords = url.searchParams.getAll("keyword")
-				.map(keyword => decodeURIComponent(keyword.trim()));
+            // クエリパラメータ "keyword" のすべての値を取得（複数指定対応）
+            const keywords = url.searchParams.getAll('keyword')
+                .map(keyword => decodeURIComponent(keyword.trim()));
 
-			// キーワードが指定されていない場合のデフォルト値
-			const effectiveKeywords = keywords.length > 0
-				? keywords
-				: ["Microsoft", "Adobe Acrobat", "Java"];
+            // キーワードが指定されていない場合のデフォルト値
+            const effectiveKeywords = keywords.length > 0
+                ? keywords
+                : ['Microsoft', 'Adobe Acrobat', 'Java'];
 
-			// JSONデータを取得
-			const response = await fetch(sourceUrl);
-			const source = await response.json();
+            // JSONデータを取得
+            const response = await fetch(sourceUrl);
+            const source = await response.json();
 
-			// JSONの "itemdata" フィールドを取得
-			const itemData = source.itemdata || [];
+            // JSONの "itemdata" フィールドを取得
+            const itemData = source.itemdata || [];
 
-			// フィルタリング条件を設定
-			const filteredData = itemData
-				.filter(item =>
-					effectiveKeywords.some(keyword => item.item_title.includes(keyword))
-				)
-				.map(item => {
-					// "item_identifier" フィールドを削除
-					const { item_identifier, ...rest } = item;
-					return rest;
-				})
-				.sort((a, b) => {
-					// item_date の昇順でソート
-					const dateA = new Date(a.item_date).getTime();
-					const dateB = new Date(b.item_date).getTime();
-					return dateA - dateB;
-				});
+            // フィルタリング条件を設定
+            const filteredData = itemData
+                .filter(item =>
+                    effectiveKeywords.some(keyword => item.item_title.includes(keyword))
+                )
+                .map(item => {
+                    // "item_identifier" フィールドを削除
+                    const { item_identifier, ...rest } = item;
+                    return rest;
+                })
+                .sort((a, b) => {
+                    // item_date の昇順でソート
+                    const dateA = new Date(a.item_date).getTime();
+                    const dateB = new Date(b.item_date).getTime();
+                    return dateA - dateB;
+                });
 
-			// フィルタリングされたデータを返す
-			return new Response(JSON.stringify(filteredData, null, 2), {
-				headers: { "Content-Type": "application/json" },
-			});
-		} catch (error) {
-			// エラーが発生した場合
-			return new Response(
-				JSON.stringify({ error: "Failed to fetch or process data", details: error.message }),
-				{ status: 500, headers: { "Content-Type": "application/json" } }
-			);
-		}
-	},
+            // フィルタリングされたデータを返す
+            return new Response(JSON.stringify(filteredData, null, 2), {
+                headers: { 'Content-Type': 'application/json' }
+            });
+        } catch (error) {
+            // エラーが発生した場合
+            return new Response(
+                JSON.stringify({ error: 'Failed to fetch or process data', details: error.message }),
+                { status: 500, headers: { 'Content-Type': 'application/json' } }
+            );
+        }
+    }
 };
